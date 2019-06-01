@@ -18,11 +18,15 @@ function scanInvoiceFolder(folder: Folder): void {
 function extractInvoices(invoices: Invoices, patterns: InvoicePatterns): void {
   while (invoices.files.hasNext()) {
     const invoice = invoices.files.next()
-    // @ts-ignore
-    console.log('Extracting invoice: %s', invoice.getName())
-    const text = getDocumentText(invoice.getId())
-    const dateMatches = text.match(patterns.datePattern)
-    // @ts-ignore
-    console.log('Date: %s', dateMatches)
+    extractInvoice(invoice, patterns)
   }
+}
+
+function extractInvoice(invoice: File, patterns: InvoicePatterns): void {
+  // @ts-ignore
+  console.log('Extracting invoice: %s', invoice.getName())
+  const text = getDocumentText(invoice.getId())
+  const date = patterns.matchDate(text)
+  // @ts-ignore
+  console.log('Date: %s', date)
 }

@@ -33,10 +33,12 @@ function getExpenseInvoicePatterns(): {} {
   return rows.reduce(
     (expenseInvoicePatterns, row): {} => {
       const invoicePatterns = parseInvoicePatterns(row)
-      if (expenseInvoicePatterns[invoicePatterns.expense]) {
-        throw `Duplicate invoice patterns found for ${invoicePatterns.expense}`
+      const patterns: InvoicePatterns = expenseInvoicePatterns[invoicePatterns.expense]
+      if (patterns) {
+        patterns.combine(patterns)
+      } else {
+        expenseInvoicePatterns[invoicePatterns.expense] = invoicePatterns
       }
-      expenseInvoicePatterns[invoicePatterns.expense] = invoicePatterns
       return expenseInvoicePatterns
     },
     {}
