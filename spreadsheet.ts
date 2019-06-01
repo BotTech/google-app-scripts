@@ -28,23 +28,24 @@ function getCellValue(cellRef): any {
   return spreadsheet.getRange(cellRef).getValue()
 }
 
-function getExpenseInvoicePatterns(): Map<string, InvoicePatterns> {
+function getExpenseInvoicePatterns(): {} {
   const rows = invoicePatternRows()
   return rows.reduce(
-    (expenseInvoicePatterns, row): Map<string, InvoicePatterns> => {
+    (expenseInvoicePatterns, row): {} => {
       const invoicePatterns = parseInvoicePatterns(row)
-      if (expenseInvoicePatterns.has(invoicePatterns.expense)) {
+      if (expenseInvoicePatterns[invoicePatterns.expense]) {
         throw `Duplicate invoice patterns found for ${invoicePatterns.expense}`
       }
       expenseInvoicePatterns[invoicePatterns.expense] = invoicePatterns
       return expenseInvoicePatterns
     },
-    new Map
+    {}
   )
 }
 
 function invoicePatternRows(): any[][] {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet()
+  // FIXME: range can be null
   const range = spreadsheet.getRangeByName(INVOICE_PATTERNS_RANGE)
   const rows = range.getValues()
   const headerRow = rows.shift()

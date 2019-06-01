@@ -6,7 +6,7 @@ function scanInvoices(): void {
 function scanInvoiceFolder(folder: Folder): void {
   const expenseInvoicePatterns = getExpenseInvoicePatterns();
   const expenseInvoices = getConvertedExpenseInvoices(folder)
-  expenseInvoices.forEach((invoices, expense): void => {
+  forEach(expenseInvoices, (invoices, expense): void => {
     const patterns = expenseInvoicePatterns[expense]
     if (!patterns) {
       throw `Invoice patterns missing for ${expense}`

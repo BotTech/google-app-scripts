@@ -1,5 +1,4 @@
 import SchemaFile = GoogleAppsScript.Drive.Schema.File;
-import Property = GoogleAppsScript.Drive.Schema.Property;
 import File = GoogleAppsScript.Drive.File;
 import FileIterator = GoogleAppsScript.Drive.FileIterator;
 
@@ -38,19 +37,18 @@ function convertInvoicesInFolder(folder): void {
   }
 }
 
-function convertedInvoiceIds(folder: Folder): Property[] {
+function convertedInvoiceIds(folder: Folder): string[] {
   const args = {
     q: '\'' + folder.getId() + '\' in parents and trashed=false and ' + CONVERTED_PROPERTIES_SEARCH_STRING
   };
-  // TODO: Why are Files etc. optional?
   const conversions = Drive.Files.list(args);
   return conversions.items.map(convertedFromProperty);
 }
 
-function convertedFromProperty(file: SchemaFile): Property {
+function convertedFromProperty(file: SchemaFile): string {
   const property = file.properties.find((property): boolean => property.key === CONVERTED_FROM_PROPERTY_KEY)
   if (property) {
-    return property
+    return property.value
   } else {
     throw 'File "' + file.id + '" did not contain the ' + CONVERTED_FROM_PROPERTY_KEY + ' property but it has been converted.';
   }
@@ -95,16 +93,18 @@ class Invoices {
   }
 }
 
-function getConvertedExpenseInvoices(folder: Folder): Map<string, Invoices> {
-  const loop = (folder: Folder, results: Map<string, Invoices>): Map<string, Invoices> => {
+function getConvertedExpenseInvoices(folder: Folder): {} {
+  const loop = (folder: Folder, results: {}): {} => {
     const expense = folder.getName()
     const files = folder.searchFiles(CONVERTED_PROPERTIES_SEARCH_STRING)
-    results[expense] = new Invoices(expense, folder, files)
+    if (files.hasNext()) {
+      results[expense] = new Invoices(expense, folder, files)
+    }
     const childFolders = folder.getFolders()
     while (childFolders.hasNext()) {
       loop(childFolders.next(), results)
     }
     return results
   }
-  return loop(folder, new Map)
+  return loop(folder, {})
 }
